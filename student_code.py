@@ -141,7 +141,46 @@ class KnowledgeBase(object):
             string explaining hierarchical support from other Facts and rules
         """
         ####################################################
-        # Student code goes here
+        out = ""
+        # fact
+        if isinstance(fact_or_rule, Fact):
+            fact = self._get_fact(fact_or_rule)
+            if fact in self.facts:
+                out = out + (self.fact_out(fact))
+            else:
+                out = "Fact is not in the KB"
+
+        # rule
+        elif isinstance(fact_or_rule, Rule):
+            rule = self._get_rule(fact_or_rule)
+            if rule in self.rules:
+                out = out + (self.rule_out(rule))
+            else:
+                out = "Rule is not in the KB"
+
+        # not a fact or a rule
+        else:
+            return False
+
+        return out
+
+    def fact_out(self, fact):
+        line = "fact: " + fact.statement.__str__()
+        # checks if fact is asserted
+        if fact.asserted:
+            line = line + " ASSERTED"
+        return line
+
+    def rule_out(self, rule):
+        line = "rule: ("
+        for i in rule.lhs:
+            line += i.__str__()
+            if i != rule.lhs[len(rule.lhs) - 1]:
+                line += ", "
+        line += ") -> " + rule.rhs.__str__()
+        if rule.asserted:
+            line = line + " ASSERTED"
+        return line
 
 
 class InferenceEngine(object):
