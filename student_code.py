@@ -142,26 +142,53 @@ class KnowledgeBase(object):
         """
         ####################################################
         out = ""
+        depth = 0
         # fact
         if isinstance(fact_or_rule, Fact):
             fact = self._get_fact(fact_or_rule)
             if fact in self.facts:
-                out = out + (self.fact_out(fact))
+                out = out + self.fact_out(fact)
+                out += "\n"
+                out = out + self.supported(fact, depth)
             else:
-                out = "Fact is not in the KB"
+                out = out + "Fact is not in the KB"
 
         # rule
         elif isinstance(fact_or_rule, Rule):
             rule = self._get_rule(fact_or_rule)
             if rule in self.rules:
-                out = out + (self.rule_out(rule))
+                out = out + self.rule_out(rule)
+                out += "\n"
+                out = out + self.supported(rule, depth)
             else:
-                out = "Rule is not in the KB"
+                out = out + "Rule is not in the KB"
 
         # not a fact or a rule
         else:
             return False
 
+        return out
+
+    def supported(self, fact_or_rule, depth):
+        tab = "    "
+        indent = tab * depth
+        out = ""
+        if len(fact_or_rule.supported_by):
+            for sb in fact_or_rule.supported_by:
+                out = out + indent + "  SUPPORTED BY\n"
+                supporting_fact = sb[0]
+                supporting_rule = sb[1]
+
+                out += indent + tab + self.fact_out(supporting_fact)
+                out += "\n"
+
+                new_depth = depth + 1
+                out += self.supported(supporting_fact, new_depth)
+
+                out += indent + tab + self.rule_out(supporting_rule)
+                out += "\n"
+
+                out += self.supported(supporting_rule, new_depth)
         return out
 
     def fact_out(self, fact):
