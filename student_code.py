@@ -147,21 +147,25 @@ class KnowledgeBase(object):
         if isinstance(fact_or_rule, Fact):
             fact = self._get_fact(fact_or_rule)
             if fact in self.facts:
-                out = out + self.fact_out(fact)
+                # fact text
+                out += self.fact_out(fact)
                 out += "\n"
-                out = out + self.supported(fact, depth)
+                # support list
+                out += self.supported(fact, depth)
             else:
-                out = out + "Fact is not in the KB"
+                out += "Fact is not in the KB"
 
         # rule
         elif isinstance(fact_or_rule, Rule):
             rule = self._get_rule(fact_or_rule)
             if rule in self.rules:
-                out = out + self.rule_out(rule)
+                # rule text
+                out += self.rule_out(rule)
                 out += "\n"
-                out = out + self.supported(rule, depth)
+                # support list
+                out += self.supported(rule, depth)
             else:
-                out = out + "Rule is not in the KB"
+                out += "Rule is not in the KB"
 
         # not a fact or a rule
         else:
@@ -175,22 +179,25 @@ class KnowledgeBase(object):
         out = ""
         if len(fact_or_rule.supported_by):
             for sb in fact_or_rule.supported_by:
+                # header
                 out = out + indent + "  SUPPORTED BY\n"
+                # support pair
                 supporting_fact = sb[0]
                 supporting_rule = sb[1]
-
+                # support fact
                 out += indent + tab + self.fact_out(supporting_fact)
                 out += "\n"
-
-                new_depth = depth + 1
-                out += self.supported(supporting_fact, new_depth)
-
+                # support list of support fact
+                deeper = depth + 1
+                out += self.supported(supporting_fact, deeper)
+                # support rule
                 out += indent + tab + self.rule_out(supporting_rule)
                 out += "\n"
-
-                out += self.supported(supporting_rule, new_depth)
+                # support list of support rule
+                out += self.supported(supporting_rule, deeper)
         return out
 
+    # helper function to stringify facts
     def fact_out(self, fact):
         line = "fact: " + fact.statement.__str__()
         # checks if fact is asserted
@@ -198,6 +205,7 @@ class KnowledgeBase(object):
             line = line + " ASSERTED"
         return line
 
+    # helper function to stringify rules
     def rule_out(self, rule):
         line = "rule: ("
         for i in rule.lhs:
@@ -206,7 +214,7 @@ class KnowledgeBase(object):
                 line += ", "
         line += ") -> " + rule.rhs.__str__()
         if rule.asserted:
-            line = line + " ASSERTED"
+            line += " ASSERTED"
         return line
 
 
